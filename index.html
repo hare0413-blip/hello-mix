@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#14151b">
+  <meta name="description" content="ハロプロの曲を選んで、今日の自分だけのプレイリストを。個人用・非公式のプレイリスト作成ツール。">
+  <title>Hello! Mix — ハロプロ プレイリスト</title>
+  <style>
+    /* 01. デザイントークン：色・余白の調整はここから */
+    :root { color-scheme:dark; --bg:#14151b; --panel:#1d1e26; --line:#34353f; --text:#f5f3f8; --muted:#b0afbe; --accent:#d8c7ff; --radius:20px; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; scroll-padding-top:22px; }
+    body { margin:0; background:var(--bg); color:var(--text); font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif; }
+    button,input,select { font:inherit; }
+    button,a,input,select { -webkit-tap-highlight-color:transparent; }
+    button { cursor:pointer; }
+    button,select,input { color:var(--text); border:1px solid var(--line); background:#252630; border-radius:10px; min-height:44px; }
+    button { padding:9px 15px; transition:background .15s,transform .15s; }
+    button:hover:not(:disabled) { background:#373844; }
+    button:active:not(:disabled) { transform:translateY(1px); }
+    button:disabled { opacity:.4; cursor:default; }
+    :focus-visible { outline:3px solid var(--accent); outline-offset:3px; }
+    input,select { padding:10px 12px; width:100%; }
+    a { color:var(--accent); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    h1,h2,h3,p { margin:0; }
+    h2 { font-size:21px; letter-spacing:.02em; }
+    .wrap { max-width:1440px; padding:28px 40px 32px; margin:auto; }
+    .top { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:30px; }
+    .brand { display:flex; gap:13px; align-items:center; }
+    .mark { display:grid; place-items:center; width:46px; height:46px; background:var(--accent); color:#22202b; border-radius:14px; font-size:27px; font-weight:900; }
+    h1 { font-size:25px; letter-spacing:-1px; }
+    .eyebrow { font-size:12px; font-weight:700; letter-spacing:.17em; color:var(--muted); }
+    .save { color:var(--muted); font-size:13px; text-align:right; max-width:300px; }
+    .save::before { content:'●'; color:#98d9b1; margin-right:8px; }
+    .save.error::before { color:#ff9999; }
+    .intro { display:flex; justify-content:space-between; align-items:end; gap:20px; margin-bottom:24px; }
+    .intro h2 { font-size:clamp(25px,3vw,34px); letter-spacing:.02em; }
+    .intro p { color:var(--muted); margin-top:6px; font-size:14px; }
+    .edition { font-size:12px; color:var(--muted); white-space:nowrap; letter-spacing:.1em; }
+    .workspace { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(350px,1fr); gap:24px; align-items:start; }
+    .panel { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; }
+    .generator { padding:22px; margin-bottom:24px; background:linear-gradient(120deg,#30283e,#20212b 75%); }
+    .heading { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .section-label { color:var(--accent); font-size:12px; font-weight:700; letter-spacing:.12em; margin-bottom:5px; }
+    .generator h2 { font-size:20px; }
+    .hint { font-size:13px; color:var(--muted); margin-top:8px; }
+    fieldset { border:0; padding:0; margin:18px 0; min-width:0; }
+    legend,label.field { display:block; font-size:14px; margin-bottom:8px; }
+    .chips { display:flex; flex-wrap:wrap; gap:8px; }
+    .chip { font-size:13px; border-radius:8px; display:inline-flex; gap:7px; align-items:center; padding:8px 10px; }
+    .dot { width:8px; height:8px; border-radius:50%; display:inline-block; background:var(--group,#bdb4d2); flex-shrink:0; }
+    .chip[aria-pressed=true] { border-color:var(--group,var(--accent)); background:#34313e; color:#fff; }
+    .chip[aria-pressed=false] { color:var(--muted); }
+    .gen-fields { display:grid; grid-template-columns:90px 1fr; gap:14px; }
+    .primary { color:#241c31; background:var(--accent); border-color:var(--accent); font-weight:750; }
+    .primary:hover:not(:disabled) { background:#e9dfff; }
+    .generate { width:100%; margin-top:16px; min-height:48px; }
+    .library-head { padding:22px 22px 16px; }
+    .count { color:var(--muted); font-size:13px; font-weight:400; margin-left:8px; white-space:nowrap; }
+    .search { margin:18px 0 12px; }
+    .filters { margin-top:12px; }
+    .library-list { max-height:650px; overflow-y:auto; scrollbar-color:#55515f transparent; }
+    .song { display:flex; align-items:center; gap:10px; padding:10px 20px; border-top:1px solid #30313b; min-height:78px; }
+    .song:hover { background:#252630; }
+    .song-main { flex:1; min-width:0; display:flex; gap:12px; align-items:center; background:transparent; border:0; text-align:left; padding:4px 0; border-radius:5px; }
+    .song-main:hover:not(:disabled) { background:transparent; }
+    .tile { width:40px; height:40px; flex-shrink:0; display:grid; place-items:center; border-radius:10px; background:#2b2b36; color:var(--group); border:1px solid var(--group); font-size:12px; font-weight:800; }
+    .song-copy { min-width:0; }
+    .song-title { display:block; font-size:15px; font-weight:650; overflow-wrap:anywhere; }
+    .artist { display:block; font-size:12px; color:var(--group); margin-top:3px; }
+    .music { display:grid; place-items:center; min-width:44px; min-height:44px; font-size:20px; color:var(--muted); border-radius:8px; }
+    .add { width:44px; padding:0; font-size:23px; }
+    .add.added { color:var(--accent); font-size:19px; opacity:1; background:#34303f; }
+    .playlist { position:sticky; top:20px; }
+    .playlist-head { padding:24px; }
+    .playlist-name { background:transparent; border:0; border-bottom:1px solid var(--line); border-radius:0; padding:8px 0; font-size:24px; font-weight:700; margin-top:12px; }
+    .playlist-meta { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:18px; }
+    .total { font-size:32px; line-height:1; letter-spacing:-1px; font-weight:750; }
+    .total small { font-size:14px; color:var(--muted); margin-left:6px; font-weight:400; }
+    .text-button { font-size:13px; color:var(--muted); padding:7px 10px; }
+    .mix-bar { display:flex; height:5px; background:#34343f; margin-top:22px; overflow:hidden; border-radius:8px; }
+    .mix-bar span { min-width:2px; }
+    .playlist-list { margin:0; padding:0; list-style:none; max-height:590px; overflow-y:auto; scrollbar-color:#55515f transparent; }
+    .playlist-row { display:grid; grid-template-columns:24px minmax(0,1fr) auto; gap:8px; align-items:center; padding:14px 20px; border-top:1px solid #30313b; }
+    .number { color:#a8a3b6; font-size:12px; font-variant-numeric:tabular-nums; }
+    .row-actions { display:flex; gap:2px; }
+    .icon { min-width:36px; padding:4px; background:transparent; border:0; color:var(--muted); font-size:18px; }
+    .row-link { display:inline-flex; font-size:12px; min-height:30px; align-items:center; color:var(--muted); }
+    .empty { text-align:center; padding:55px 24px; color:var(--muted); }
+    .empty-symbol { color:var(--accent); font-size:36px; margin-bottom:12px; }
+    .empty strong { display:block; color:var(--text); font-size:16px; margin-bottom:8px; }
+    .empty p { font-size:13px; }
+    .playlist-foot { border-top:1px solid var(--line); padding:14px 24px; color:var(--muted); font-size:12px; }
+    footer { margin-top:26px; color:var(--muted); font-size:12px; display:flex; gap:16px; justify-content:space-between; flex-wrap:wrap; }
+    .toast { position:fixed; left:50%; bottom:28px; transform:translateX(-50%); padding:12px 20px; border-radius:12px; background:#eee5ff; color:#272133; z-index:10; box-shadow:0 12px 40px #0007; max-width:calc(100% - 32px); width:max-content; font-size:14px; pointer-events:none; }
+    .toast:empty { display:none; }
+    .mobile-nav { display:none; }
+    .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+    @media(max-width:1000px) { .wrap { padding:24px; } .workspace { gap:18px; grid-template-columns:minmax(0,1fr) minmax(330px,1fr); } .row-actions { flex-direction:column; } .icon { min-height:34px; } }
+    @media(max-width:760px) { .wrap { padding:20px 16px calc(90px + env(safe-area-inset-bottom)); } .top { margin-bottom:25px; } .brand { gap:9px; } h1 { font-size:23px; } .save { font-size:12px; max-width:150px; } .edition { display:none; } .workspace { display:flex; flex-direction:column; } .left,.playlist { width:100%; } .playlist { position:static; } .generator { padding:18px; margin-bottom:18px; } .library-head { padding:18px; } .library-list { max-height:490px; } .song { padding:10px 14px; gap:6px; } .playlist-head { padding:20px; } .playlist-row { padding:12px 14px; } .row-actions { flex-direction:row; } .icon { min-width:38px; min-height:44px; } .playlist-list { max-height:none; } .mobile-nav { display:flex; position:fixed; bottom:0; left:0; right:0; z-index:5; background:#1d1e26f5; border-top:1px solid var(--line); padding:8px 16px calc(8px + env(safe-area-inset-bottom)); gap:12px; } .mobile-nav a { flex:1; text-align:center; padding:10px; border-radius:10px; background:#30303c; font-size:14px; color:var(--text); } .toast { bottom:calc(82px + env(safe-area-inset-bottom)); } }
+    @media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } * { transition:none!important; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand"><span class="mark" aria-hidden="true">h!</span><div><h1>Hello! Mix<span style="color:var(--accent)">.</span></h1><p class="eyebrow">YOUR HELLO! PROJECT MIX</p></div></div>
+      <p class="save" id="saveStatus" role="status">このブラウザに自動保存</p>
+    </header>
+    <section class="intro"><div><h2>今日の気分を、セットリストに。</h2><p>好きな曲を集めても、偶然の出会いにまかせても。</p></div><span class="edition">PERSONAL PLAYLIST BUILDER / 01</span></section>
+    <main class="workspace">
+      <div class="left">
+        <section class="panel generator" aria-labelledby="generatorHeading">
+          <p class="section-label">MAKE A LITTLE MAGIC</p>
+          <h2 id="generatorHeading">✧ おまかせミックス</h2>
+          <p class="hint">グループを選んで、今日のプレイリストを生成。</p>
+          <form id="generatorForm">
+            <fieldset><legend>参加するグループ <span class="count">複数選択OK</span></legend><div id="generatorGroups" class="chips"></div></fieldset>
+            <div class="gen-fields"><div><label class="field" for="songCount">曲数</label><input id="songCount" type="number" min="1" max="200" value="10" step="1" required inputmode="numeric"></div><div><label class="field" for="favGroup">このグループを多めに</label><select id="favGroup"><option value="">指定なし</option></select></div></div>
+            <p class="hint" id="poolHint"></p>
+            <button class="primary generate" id="generate" type="submit">✧ ランダムで生成する</button>
+            <p class="hint">現在のリストを置き換えます。多め指定は抽選の重みが3倍。</p>
+          </form>
+        </section>
+        <section class="panel" id="library" aria-labelledby="libraryHeading">
+          <div class="library-head"><div class="heading"><h2 id="libraryHeading">楽曲ライブラリ <span class="count" id="libraryCount"></span></h2><span aria-hidden="true" style="color:var(--accent)">♫</span></div>
+            <label class="sr-only" for="search">曲名を検索</label><input class="search" id="search" type="search" placeholder="曲名を検索…" autocomplete="off">
+            <div id="filters" class="chips filters" role="group" aria-label="ライブラリのグループ絞り込み"></div>
+            <p class="hint">初期収録は代表曲のセレクションです（全曲網羅ではありません）。</p>
+          </div>
+          <div id="songList" class="library-list"></div>
+        </section>
+      </div>
+      <section class="panel playlist" id="playlist" aria-labelledby="playlistHeading">
+        <div class="playlist-head"><div class="heading"><h2 id="playlistHeading">マイプレイリスト</h2><span class="eyebrow">MY MIX</span></div>
+          <label class="sr-only" for="playlistName">プレイリスト名</label><input class="playlist-name" id="playlistName" maxlength="80" placeholder="プレイリスト名" value="今日のハロプロミックス">
+          <div class="playlist-meta"><span class="total"><span id="total">0</span><small>曲</small></span><div><button class="text-button" id="undo" disabled>元に戻す</button> <button class="text-button" id="reset" disabled>リセット</button></div></div>
+          <div id="mixBar" class="mix-bar" aria-hidden="true"></div>
+          <p class="sr-only" id="mixSummary"></p>
+        </div>
+        <ol class="playlist-list" id="playlistList"></ol>
+        <div class="empty" id="emptyPlaylist"><div class="empty-symbol" aria-hidden="true">♫ ＋</div><strong>最初の1曲から、はじめよう。</strong><p>曲名や「＋」をタップして追加。<br>おまかせミックスで作るのもおすすめ。</p></div>
+        <div class="playlist-foot">↑ ↓ で曲順を変更 · ♫ でApple Musicを検索<br>このアプリは曲の再生・Apple Musicへの転送は行いません。</div>
+      </section>
+    </main>
+    <footer><span>Hello! Mix · 個人用の非公式ツール</span><span>楽曲情報：<a href="https://www.helloproject.com/release/" target="_blank" rel="noopener noreferrer">Hello! Project ↗</a> / <a href="https://www.up-front-works.jp/" target="_blank" rel="noopener noreferrer">UP-FRONT WORKS ↗</a></span></footer>
+  </div>
+  <nav class="mobile-nav" aria-label="ページ内移動"><a href="#library">♫ 曲を探す</a><a href="#playlist">マイリスト <span id="mobileCount">0</span></a></nav>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <noscript>このアプリを使うにはJavaScriptを有効にしてください。</noscript>
+  <script>
+    'use strict';
+    // ============================================================
+    // 02. 楽曲データ
+    // group は GROUPS の id と対応。id は保存に使うため変更しないでください。
+    // 新曲は SONGS に { id:'一意なID', group:'mm', title:'曲名' } を追加。
+    // artist を指定すると Apple Music 検索にはその表記を使います。
+    // 初期収録はセレクション。リリース年別名義はグループ単位に集約。
+    // ============================================================
+    const GROUPS = [
+      { id:'mm', name:'モーニング娘。', short:'MM', color:'#e4c372' },
+      { id:'angerme', name:'アンジュルム', short:'AN', color:'#8ab9ff' },
+      { id:'juice', name:'Juice=Juice', short:'JJ', color:'#ff838c' },
+      { id:'tsubaki', name:'つばきファクトリー', short:'TF', color:'#ef91c4' },
+      { id:'beyooooonds', name:'BEYOOOOONDS', short:'BE', color:'#efbfd8' },
+      { id:'ocha', name:'OCHA NORMA', short:'ON', color:'#93d5a1' },
+      { id:'rosy', name:'ロージークロニクル', short:'RC', color:'#e9dc73' },
+      { id:'berryz', name:'Berryz工房', short:'BK', color:'#bca3ed' },
+      { id:'cute', name:'℃-ute', short:'℃', color:'#82d6d6' },
+      { id:'buono', name:'Buono!', short:'B!', color:'#e9ae7c' },
+      { id:'smileage', name:'スマイレージ', short:'SM', color:'#a2bafa' },
+      { id:'country', name:'カントリー・ガールズ', short:'CG', color:'#b8cf9a' },
+      { id:'kobushi', name:'こぶしファクトリー', short:'KF', color:'#bfa3df' }
+    ];
+    const SONGS = [
+      { id:'mm-001', group:'mm', title:'LOVEマシーン' },
+      { id:'mm-002', group:'mm', title:'恋愛レボリューション21' },
+      { id:'mm-003', group:'mm', title:'One・Two・Three' },
+      { id:'mm-004', group:'mm', title:'わがまま 気のまま 愛のジョーク' },
+      { id:'mm-005', group:'mm', title:'What is LOVE?', artist:"モーニング娘。'14" },
+      { id:'mm-006', group:'mm', title:'泡沫サタデーナイト！', artist:"モーニング娘。'16" },
+      { id:'mm-007', group:'mm', title:'ジェラシー ジェラシー', artist:"モーニング娘。'17" },
+      { id:'mm-008', group:'mm', title:'ザ☆ピ～ス！' },
+      { id:'an-001', group:'angerme', title:'大器晩成' },
+      { id:'an-002', group:'angerme', title:'ドンデンガエシ' },
+      { id:'an-003', group:'angerme', title:'次々続々' },
+      { id:'an-004', group:'angerme', title:'46億年LOVE' },
+      { id:'an-005', group:'angerme', title:'愛すべきべき Human Life' },
+      { id:'an-006', group:'angerme', title:'愛・魔性' },
+      { id:'an-007', group:'angerme', title:'ハデにやっちゃいな！' },
+      { id:'an-008', group:'angerme', title:'美々たる一撃' },
+      { id:'jj-001', group:'juice', title:'ロマンスの途中' },
+      { id:'jj-002', group:'juice', title:'私が言う前に抱きしめなきゃね' },
+      { id:'jj-003', group:'juice', title:'イジワルしないで 抱きしめてよ' },
+      { id:'jj-004', group:'juice', title:'伊達じゃないよ うちの人生は' },
+      { id:'jj-005', group:'juice', title:'「ひとりで生きられそう」って それってねえ、褒めているの？' },
+      { id:'jj-006', group:'juice', title:'プライド・ブライト' },
+      { id:'jj-007', group:'juice', title:"FUNKY FLUSHIN'" },
+      { id:'jj-008', group:'juice', title:'ポップミュージック' },
+      { id:'tf-001', group:'tsubaki', title:'初恋サンライズ' },
+      { id:'tf-002', group:'tsubaki', title:'今夜だけ浮かれたかった' },
+      { id:'tf-003', group:'tsubaki', title:'低温火傷' },
+      { id:'tf-004', group:'tsubaki', title:'春恋歌' },
+      { id:'tf-005', group:'tsubaki', title:'就活センセーション' },
+      { id:'tf-006', group:'tsubaki', title:'アドレナリン・ダメ' },
+      { id:'tf-007', group:'tsubaki', title:'妄想だけならフリーダム' },
+      { id:'tf-008', group:'tsubaki', title:'My Days for You' },
+      { id:'be-001', group:'beyooooonds', title:'眼鏡の男の子' },
+      { id:'be-002', group:'beyooooonds', title:'ニッポンノD・N・A！' },
+      { id:'be-003', group:'beyooooonds', title:'Go Waist' },
+      { id:'be-004', group:'beyooooonds', title:'激辛LOVE' },
+      { id:'be-005', group:'beyooooonds', title:'英雄～笑って！ショパン先輩～' },
+      { id:'be-006', group:'beyooooonds', title:'灰toダイヤモンド' },
+      { id:'be-007', group:'beyooooonds', title:'Go City Go' },
+      { id:'be-008', group:'beyooooonds', title:'フックの法則' },
+      { id:'on-001', group:'ocha', title:'恋のクラウチングスタート' },
+      { id:'on-002', group:'ocha', title:'お祭りデビューだぜ！' },
+      { id:'on-003', group:'ocha', title:'運命 CHACHACHACHA～N' },
+      { id:'on-004', group:'ocha', title:'ウチらの地元は地球じゃん！' },
+      { id:'on-005', group:'ocha', title:'ちょっと情緒不安定？…夏' },
+      { id:'on-006', group:'ocha', title:'シェケナーレ' },
+      { id:'rc-001', group:'rosy', title:'へいらっしゃい！～ニッポンで会いましょう～' },
+      { id:'rc-002', group:'rosy', title:'ウブとズル' },
+      { id:'rc-003', group:'rosy', title:'夏のイナズマ' },
+      { id:'rc-004', group:'rosy', title:'ガオガオガオ' },
+      { id:'bk-001', group:'berryz', title:'スッペシャル ジェネレ～ション' },
+      { id:'bk-002', group:'berryz', title:'付き合ってるのに片思い' },
+      { id:'bk-003', group:'berryz', title:'cha cha SING' },
+      { id:'bk-004', group:'berryz', title:'あなたなしでは生きてゆけない' },
+      { id:'ct-001', group:'cute', title:'まっさらブルージーンズ' },
+      { id:'ct-002', group:'cute', title:'Danceでバコーン！' },
+      { id:'ct-003', group:'cute', title:'Kiss me 愛してる' },
+      { id:'ct-004', group:'cute', title:'桜チラリ' },
+      { id:'bu-001', group:'buono', title:'初恋サイダー' },
+      { id:'bu-002', group:'buono', title:'ロッタラ ロッタラ' },
+      { id:'bu-003', group:'buono', title:'恋愛♥ライダー' },
+      { id:'sm-001', group:'smileage', title:'夢見る 15歳' },
+      { id:'sm-002', group:'smileage', title:'有頂天LOVE' },
+      { id:'sm-003', group:'smileage', title:'スキちゃん' },
+      { id:'cg-001', group:'country', title:'愛おしくってごめんね' },
+      { id:'cg-002', group:'country', title:'恋泥棒' },
+      { id:'cg-003', group:'country', title:'ブギウギLOVE' },
+      { id:'kf-001', group:'kobushi', title:'ドスコイ！ケンキョにダイタン' },
+      { id:'kf-002', group:'kobushi', title:'念には念' },
+      { id:'kf-003', group:'kobushi', title:'シャララ！やれるはずさ' }
+    ];
+
+    // 03. 純粋なデータ操作（DOMや保存処理から独立）
+    const GROUP_MAP = new Map(GROUPS.map(group => [group.id, group]));
+    const SONG_MAP = new Map(SONGS.map(song => [song.id, song]));
+    const STORAGE_KEY = 'hello-mix.playlist.v1';
+    const DEFAULT_NAME = '今日のハロプロミックス';
+    function normalize(text) {
+      return text.normalize('NFKC').toLocaleLowerCase('ja').replace(/[\u30a1-\u30f6]/g, c => String.fromCharCode(c.charCodeAt(0) - 0x60)).replace(/\s+/g, '');
+    }
+    function searchSongs(query, groupId) {
+      const needle = normalize(query);
+      return SONGS.filter(song => (!groupId || song.group === groupId) && normalize(song.title).includes(needle));
+    }
+    function sanitizeSaved(value) {
+      if (!value || value.version !== 1 || !Array.isArray(value.songIds) || typeof value.name !== 'string') throw new Error('保存形式が不正です');
+      return { name:value.name.slice(0,80), songIds:[...new Set(value.songIds.filter(id => typeof id === 'string' && SONG_MAP.has(id)))] };
+    }
+    function musicURL(song) {
+      return 'https://music.apple.com/jp/search?term=' + encodeURIComponent(song.title + ' ' + (song.artist || GROUP_MAP.get(song.group).name));
+    }
+    // 重複なしの重み付き抽選。多め指定は各曲の重みを3倍にする。
+    function generateMix(groupIds, count, favorite, random = Math.random) {
+      const pool = SONGS.filter(song => groupIds.includes(song.group));
+      const result = [];
+      const size = Math.min(Math.max(0, Math.floor(count)), pool.length);
+      while (result.length < size) {
+        const weights = pool.map(song => song.group === favorite ? 3 : 1);
+        let ticket = random() * weights.reduce((sum, weight) => sum + weight, 0);
+        let index = weights.length - 1;
+        for (let i = 0; i < weights.length; i++) { ticket -= weights[i]; if (ticket < 0) { index = i; break; } }
+        result.push(pool.splice(index, 1)[0].id);
+      }
+      return result;
+    }
+
+    // 04. 状態・LocalStorage。プレイリストだけを保存し、検索条件は毎回初期化。
+    const state = { name:DEFAULT_NAME, songIds:[], filter:'', query:'', generatorGroups:new Set(GROUPS.slice(0,7).map(g => g.id)), previous:null };
+    const $ = id => document.getElementById(id);
+    let toastTimer;
+    let storageLocked = false;
+    function notify(message) { $('toast').textContent = message; clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').textContent = ''; }, 3200); }
+    function setSaveStatus(message, error = false) { $('saveStatus').textContent = message; $('saveStatus').classList.toggle('error', error); }
+    function restore() {
+      let raw;
+      try { raw = localStorage.getItem(STORAGE_KEY); }
+      catch { setSaveStatus('保存領域を利用できません', true); return; }
+      if (!raw) return;
+      try {
+        const saved = sanitizeSaved(JSON.parse(raw));
+        state.name = saved.name; state.songIds = saved.songIds;
+        setSaveStatus('保存したプレイリストを復元しました');
+      } catch {
+        // 壊れたデータや将来版を黙って上書きしない。次の編集時に確認する。
+        storageLocked = true;
+        setSaveStatus('保存データを読めません。次の編集時に保存を確認します', true);
+      }
+    }
+    function persist() {
+      if (storageLocked) {
+        if (!window.confirm('既存の保存データを読み込めませんでした。現在のプレイリストで上書き保存しますか？')) { setSaveStatus('未保存：既存データを保持しています', true); return; }
+        storageLocked = false;
+      }
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ version:1, name:state.name, songIds:state.songIds })); setSaveStatus('このブラウザに保存済み'); }
+      catch { setSaveStatus('保存できません。現在の内容はこの画面のみ', true); }
+    }
+    function commit(songIds, message) {
+      state.previous = [...state.songIds];
+      state.songIds = songIds;
+      persist(); renderLibrary(); renderPlaylist(); notify(message);
+    }
+
+    // 05. 描画：曲名などの可変文字列はtextContentで挿入。
+    function element(tag, className, text) {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (text !== undefined) node.textContent = text;
+      return node;
+    }
+    function groupChip(group, selected, onClick) {
+      const button = element('button', 'chip'); button.type = 'button';
+      if (group.color) button.style.setProperty('--group', group.color);
+      button.setAttribute('aria-pressed', String(selected));
+      if (group.color) button.append(element('span', 'dot'));
+      button.append(document.createTextNode(group.name)); button.addEventListener('click', onClick);
+      return button;
+    }
+    function renderFilters() {
+      $('filters').replaceChildren(...[{id:'',name:'すべて'}, ...GROUPS].map(group => groupChip(group, state.filter === group.id, () => {
+        state.filter = group.id; renderFilters(); renderLibrary();
+        [...$('filters').children].find(button => button.getAttribute('aria-pressed') === 'true')?.focus({preventScroll:true});
+      })));
+    }
+    function renderGenerator() {
+      const oldFavorite = $('favGroup').value;
+      $('generatorGroups').replaceChildren(...GROUPS.map(group => groupChip(group, state.generatorGroups.has(group.id), () => {
+        state.generatorGroups.has(group.id) ? state.generatorGroups.delete(group.id) : state.generatorGroups.add(group.id);
+        renderGenerator(); $('generatorGroups').children[GROUPS.indexOf(group)].focus({preventScroll:true});
+      })));
+      $('favGroup').replaceChildren(new Option('指定なし', ''), ...GROUPS.filter(g => state.generatorGroups.has(g.id)).map(g => new Option(g.name, g.id)));
+      if (state.generatorGroups.has(oldFavorite)) $('favGroup').value = oldFavorite;
+      const count = SONGS.filter(song => state.generatorGroups.has(song.group)).length;
+      $('poolHint').textContent = count ? `対象 ${count} 曲から重複なしで抽選。足りない場合は対象の全曲を使います。` : '少なくとも1グループ選んでください。';
+      $('generate').disabled = count === 0;
+    }
+    function songCopy(song) {
+      const copy = element('span','song-copy');
+      copy.append(element('span','song-title',song.title), element('span','artist',GROUP_MAP.get(song.group).name));
+      return copy;
+    }
+    function musicLink(song, compact = true) {
+      const link = element('a', compact ? 'music' : 'row-link', compact ? '♫' : '♫ Apple Music ↗');
+      link.href = musicURL(song); link.target = '_blank'; link.rel = 'noopener noreferrer';
+      link.setAttribute('aria-label', `${song.title}をApple Musicで検索（新しいタブ）`); link.title = 'Apple Musicで検索';
+      return link;
+    }
+    function renderLibrary() {
+      const songs = searchSongs(state.query, state.filter);
+      $('libraryCount').textContent = `${songs.length} / ${SONGS.length}曲`;
+      const fragment = document.createDocumentFragment();
+      for (const song of songs) {
+        const group = GROUP_MAP.get(song.group), added = state.songIds.includes(song.id);
+        const row = element('div','song'); row.style.setProperty('--group',group.color);
+        const main = element('button','song-main'); main.type = 'button';
+        main.setAttribute('aria-label', `${song.title} / ${group.name}${added ? '（追加済み）' : 'を追加'}`);
+        main.append(element('span','tile',group.short),songCopy(song));
+        main.addEventListener('click', () => addSong(song.id));
+        const add = element('button', `add${added ? ' added' : ''}`,added ? '✓' : '+');
+        add.type = 'button'; add.disabled = added; add.dataset.songId = song.id;
+        add.setAttribute('aria-label',`${song.title}${added ? 'は追加済み' : 'を追加'}`); add.addEventListener('click', () => addSong(song.id));
+        row.append(main,musicLink(song),add); fragment.append(row);
+      }
+      if (!songs.length) { const empty = element('div','empty'); empty.append(element('strong','', '該当する曲がありません'),element('p','', '検索語やグループの指定を変えてみてください。')); fragment.append(empty); }
+      const scroll = $('songList').scrollTop;
+      $('songList').replaceChildren(fragment); $('songList').scrollTop = scroll;
+    }
+    function renderPlaylist() {
+      $('total').textContent = $('mobileCount').textContent = state.songIds.length;
+      $('reset').disabled = !state.songIds.length; $('undo').disabled = state.previous === null;
+      $('emptyPlaylist').hidden = state.songIds.length > 0;
+      const fragment = document.createDocumentFragment();
+      state.songIds.forEach((id,index) => {
+        const song = SONG_MAP.get(id), group = GROUP_MAP.get(song.group);
+        const row = element('li','playlist-row'); row.style.setProperty('--group',group.color);
+        const copy = element('div','song-copy'); copy.append(songCopy(song),musicLink(song,false));
+        const actions = element('div','row-actions');
+        for (const [action,symbol,label,disabled] of [['up','↑','上へ',index === 0],['down','↓','下へ',index === state.songIds.length - 1],['remove','×','削除',false]]) {
+          const button = element('button','icon',symbol); button.type = 'button'; button.disabled = disabled;
+          button.setAttribute('aria-label',`${song.title}を${label}`); button.title = label;
+          button.dataset.id = id; button.dataset.action = action;
+          button.addEventListener('click', () => editSong(id,action)); actions.append(button);
+        }
+        row.append(element('span','number',String(index + 1).padStart(2,'0')),copy,actions); fragment.append(row);
+      });
+      const scroll = $('playlistList').scrollTop;
+      $('playlistList').replaceChildren(fragment); $('playlistList').scrollTop = scroll;
+      const counts = GROUPS.map(group => ({...group, count:state.songIds.filter(id => SONG_MAP.get(id).group === group.id).length})).filter(group => group.count);
+      $('mixBar').replaceChildren(...counts.map(group => { const bar = element('span'); bar.style.background = group.color; bar.style.flex = group.count; bar.title = `${group.name} ${group.count}曲`; return bar; }));
+      $('mixSummary').textContent = counts.map(group => `${group.name} ${group.count}曲`).join('、');
+    }
+
+    // 06. ユーザー操作
+    function addSong(id) {
+      if (state.songIds.includes(id)) { notify('この曲は追加済みです'); return; }
+      commit([...state.songIds,id], 'プレイリストに追加しました');
+      const row = [...$('songList').children].find(row => row.querySelector('[data-song-id]')?.dataset.songId === id);
+      row?.querySelector('.song-main')?.focus({preventScroll:true});
+    }
+    function editSong(id, action) {
+      const ids = [...state.songIds], index = ids.indexOf(id);
+      if (index < 0) return;
+      if (action === 'remove') ids.splice(index,1);
+      else {
+        const next = index + (action === 'up' ? -1 : 1);
+        if (next < 0 || next >= ids.length) return;
+        [ids[index],ids[next]] = [ids[next],ids[index]];
+      }
+      commit(ids, action === 'remove' ? '曲を削除しました' : '曲順を変更しました');
+      const focusId = action === 'remove' ? ids[Math.min(index,ids.length - 1)] : id;
+      const buttons = [...$('playlistList').querySelectorAll('button')];
+      const target = buttons.find(b => b.dataset.id === focusId && b.dataset.action === action && !b.disabled) || buttons.find(b => b.dataset.id === focusId && !b.disabled);
+      (target || $('undo')).focus({preventScroll:true});
+    }
+    function initialize() {
+      restore(); $('playlistName').value = state.name;
+      renderFilters(); renderGenerator(); renderLibrary(); renderPlaylist();
+      $('search').addEventListener('input', event => { state.query = event.target.value; renderLibrary(); });
+      $('playlistName').addEventListener('input', event => { state.name = event.target.value; persist(); });
+      $('reset').addEventListener('click', () => {
+        if (state.songIds.length && window.confirm('プレイリストの曲をすべて削除しますか？（名前は残ります）')) { commit([], 'プレイリストをリセットしました'); $('undo').focus(); }
+      });
+      $('undo').addEventListener('click', () => {
+        if (state.previous === null) return;
+        state.songIds = state.previous; state.previous = null;
+        persist(); renderLibrary(); renderPlaylist(); notify('直前の編集を元に戻しました'); $('playlistName').focus({preventScroll:true});
+      });
+      $('generatorForm').addEventListener('submit', event => {
+        event.preventDefault();
+        const count = Number($('songCount').value);
+        if (!Number.isInteger(count) || count < 1 || count > 200 || !state.generatorGroups.size) { notify('グループと1〜200の整数曲数を指定してください'); return; }
+        if (state.songIds.length && !window.confirm('現在のプレイリストをランダム選曲で置き換えますか？')) return;
+        const ids = generateMix([...state.generatorGroups], count, $('favGroup').value);
+        commit(ids, `${ids.length}曲のミックスを生成しました${ids.length < count ? '（対象曲数に合わせました）' : ''}`);
+      });
+    }
+    initialize();
+  </script>
+</body>
+</html>
