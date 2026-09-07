@@ -172,7 +172,11 @@
       { id:'buono', name:'Buono!', short:'B!', color:'#e9ae7c' },
       { id:'smileage', name:'スマイレージ', short:'SM', color:'#a2bafa' },
       { id:'country', name:'カントリー・ガールズ', short:'CG', color:'#b8cf9a' },
-      { id:'kobushi', name:'こぶしファクトリー', short:'KF', color:'#bfa3df' }
+      { id:'kobushi', name:'こぶしファクトリー', short:'KF', color:'#bfa3df' },
+      { id:'mano', name:'真野恵里菜', short:'ME', color:'#e7a3bd' },
+      { id:'melon', name:'メロン記念日', short:'MK', color:'#9dcc75' },
+      { id:'taiyo', name:'太陽とシスコムーン', short:'TS', color:'#f2a66f' },
+      { id:'unit', name:'ユニット', short:'UT', color:'#a99ce9' }
     ];
     const SONGS = [
       { id:'mm-001', group:'mm', title:'LOVEマシーン' },
@@ -665,16 +669,93 @@ CHOOSE YOUR LIFE
 未来ハジマリ
 ウブとズル`
     };
+    // 追加グループはここに追記する。ユニット曲は曲名と名義をセットで管理する。
+    Object.assign(CATALOG_TITLES, {
+      mano: `マノピアノ
+乙女の祈り
+世界は サマー・パーティ
+はじめての経験
+春の嵐
+お願いだから…
+元気者で行こう！
+MORE FRIENDS
+青春のセレナーデ
+ドキドキベイビー
+黄昏交差点
+天気予報があたったら
+堕天使エリー
+ふたりの天使
+NEXT MY SELF
+Song for the DATE
+Glory days
+My Days for You
+はじまりのメロディ
+そっち〜ずっと前から好きでした〜
+ゼンブダイスキ
+ダレニモイワナイデ
+Ambitious Girls`,
+      melon: `甘いあなたの味
+告白記念日
+電話待ってます
+This is 運命
+さあ、早速盛り上げて 行こか〜!!
+夏の夜はデインジャー！
+赤いフリージア
+チャンス of LOVE
+肉体は正直なEROS
+香水
+恋の仕組み。
+かわいい彼
+MI DA RA 摩天楼
+THE 二枚目
+お願い魅惑のターゲット
+ガールズパワー・愛するパワー
+メロンティー
+アンフォゲッタブル
+カリスマ・綺麗
+メロン記念日のテーマ
+ロマンチックを突き抜けろ！`,
+      taiyo: `月と太陽
+ガタメキラ
+宇宙でLa Ta Ta
+Everyday Everywhere
+丸い太陽
+Magic of Love
+Hey! 真昼の蜃気楼
+恋人は心の応援団
+DON'T STOP RAVE
+愛のサバイバー
+SUPER CIDER!
+ENDLESS LOVE〜I Love You More〜`
+    });
+    const UNIT_TRACKS = [
+      ['ちょこっとLOVE','プッチモニ'], ['BABY! 恋にKNOCK OUT!','プッチモニ'], ['青春時代1.2.3!','プッチモニ'],
+      ['恋をしちゃいました！','タンポポ'], ['乙女 パスタに感動','タンポポ'], ['BE HAPPY 恋のやじろべえ','タンポポ'],
+      ['ミニモニ。ジャンケンぴょん！','ミニモニ。'], ['ミニモニ。テレフォン！リンリンリン','ミニモニ。'], ['CRAZY ABOUT YOU','ミニモニ。'],
+      ['あぁ いいな！','W'], ['ロボキッス','W'], ['恋のフーガ','W'], ['Thanks!','GAM'], ['メロディーズ','GAM'],
+      ['好きすぎて バカみたい','DEF.DIVA'], ['C\'mon! ダンスワールド','High-King'], ['FIRST KISS','あぁ！'],
+      ['正夢','ZYX'], ['SEXY NIGHT〜忘れられない彼〜','ROMANS'], ['ダンシング！夏祭り','10人祭'],
+      ['幸せビーム！好き好きビーム！','ハッピー♡7'], ['ALL FOR ONE & ONE FOR ALL!','H.P.オールスターズ'],
+      ['愛の園〜Touch My Heart!〜','モーニング娘。おとめ組'], ['友情〜心のブスにはならねぇ！〜','モーニング娘。さくら組'],
+      ['DIANA','アテナ&ロビケロッツ'], ['勝利のBIG WAVE!!!','アテナ&ロビケロッツ'], ['恋愛ライダー','Buono!'],
+      ['みんなのリズム天国 全員集合','ハロプロ・オールスターズ']
+    ];
     function appendCatalogSongs() {
-      const known = new Set(SONGS.map(song => `${song.group}\u0000${song.title}`));
+      const keyOf = song => `${song.group}\u0000${song.title}\u0000${song.artist || ''}`;
+      const known = new Set(SONGS.map(keyOf));
       for (const [group, text] of Object.entries(CATALOG_TITLES)) {
         let serial = 1;
         for (const title of text.split('\n').map(title => title.trim()).filter(Boolean)) {
-          const key = `${group}\u0000${title}`;
+          const key = keyOf({group,title});
           if (!known.has(key)) { SONGS.push({ id:`${group}-catalog-${String(serial).padStart(3,'0')}`, group, title }); known.add(key); }
           serial++;
         }
       }
+      UNIT_TRACKS.forEach(([title,artist], index) => {
+        const song = { id:`unit-catalog-${String(index + 1).padStart(3,'0')}`, group:'unit', title, artist };
+        const key = keyOf(song);
+        if (!known.has(key)) { SONGS.push(song); known.add(key); }
+      });
     }
     appendCatalogSongs();
 
