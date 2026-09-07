@@ -247,6 +247,437 @@
       { id:'kf-003', group:'kobushi', title:'シャララ！やれるはずさ' }
     ];
 
+    // 02-A. カタログ拡張データ
+    // 既存の id は保存済みプレイリストとの互換性のため保持する。
+    // ここは「1行に1曲名」の形式で追記でき、重複タイトルは自動で除外する。
+    // ライブ音源、リミックス、同曲の別バージョンは収録しない。
+    const CATALOG_TITLES = {
+      mm: `愛の種
+モーニングコーヒー
+サマーナイトタウン
+A MEMORY OF SUMMER '98
+Good Morning
+どうにかして土曜日
+夢の中
+ワガママ
+未来の扉
+ウソつきあんた
+さみしい日
+抱いて HOLD ON ME!
+例えば
+Memory 青春の光
+Happy Night
+Never Forget
+真夏の光線
+恋の始発列車
+ふるさと
+忘れらんない
+NIGHT OF TOKYO CITY
+好きで×5
+パパに似ている彼
+せんこう花火
+乙女の心理学
+ダディドゥデドダディ！
+21世紀
+恋のダンスサイト
+恋はロケンロー
+〜おはよう〜
+愛車 ローンで
+くちづけのその後
+ランチタイム 〜レバニラ炒め〜
+DANCEするのだ！
+おもいで
+原宿6:00集合
+WHY
+「、、、好きだよ！」
+〜おやすみ〜
+ハッピーサマーウェディング
+通学列車
+I WISH
+あこがれ My Boy
+インスピレーション！
+Say Yeah!-もっとミラクルナイト-
+でっかい宇宙に愛がある
+Mr.Moonlight〜愛のビッグバンド〜
+ポップコーンラブ！
+そうだ！We're ALIVE
+いいことある記念の瞬間
+初めてのロックコンサート
+男友達
+いきまっしょい！
+電車の二人
+本気で熱いテーマソング
+好きな先輩
+なんにも言わずに I LOVE YOU
+Do it! Now
+ちょっとイカした PURE BOY
+ここにいるぜぇ！
+純LOVER
+モーニング娘。のひょっこりひょうたん島
+宝石箱
+TOP!
+友達(♀)が気に入っている男からの伝言
+「すっごい仲間」
+強気で行こうぜ！
+HEY!未来
+「すごく好きなのに･･･ね」
+卒業旅行〜モーニング娘。旅立つ人に贈る唄〜
+AS FOR ONE DAY
+シャボン玉
+涙にはしたくない
+Go Girl 〜恋のヴィクトリー〜
+恋ING
+THE マンパワー!!!
+あゝ女子合唱部
+大阪 恋の歌
+NATURE IS GOOD!
+色っぽい じれったい
+愛と太陽に包まれて
+直感2〜逃した魚は大きいぞ！〜
+恋は発想 Do The Hustle!
+女子かしまし物語
+涙が止まらない放課後
+THE マンパワー!!!
+歩いてる
+踊れ！モーニングカレー
+笑顔YESヌード
+サヨナラのかわりに
+悲しみトワイライト
+女に 幸あれ
+みかん
+リゾナント ブルー
+ペッパー警部
+泣いちゃうかも
+しょうがない 夢追い人
+なんちゃって恋愛
+気まぐれプリンセス
+女が目立って なぜイケナイ
+青春コレクション
+女と男のララバイゲーム
+まじですかスカ！
+Only you
+この地球の平和を本気で願ってるんだよ！
+ピョコピョコ ウルトラ
+The 摩天楼ショー
+Help me!!
+ブレインストーミング
+君さえ居れば何も要らない
+愛の軍団
+笑顔の君は太陽さ
+君の代わりは居やしない
+時空を超え 宇宙を超え
+TIKI BUN
+見返り美人
+青春小僧が泣いている
+夕暮れは雨上がり
+スカッとMy Heart
+今すぐ飛び込む勇気
+Tokyoという片隅
+The Vision
+BRAND NEW MORNING
+邪魔しないで Here We Go!
+自由な国だから
+Are you Happy?
+フラリ銀座
+人生Blues
+青春Night
+KOKORO&KARADA
+LOVEペディア
+人間関係No way way
+純情エビデンス
+ギューされたいだけなのに
+Teenage Solution
+よしよししてほしいの
+ビートの惑星
+Chu Chu Chu 僕らの未来
+大・人生 Never Been Better!
+Swing Swing Paradise
+Happy birthday to Me!
+すっごいFEVER!
+Wake-up Call〜目覚めるとき〜
+Neverending Shine
+なんだかセンチメンタルな時の歌
+最KIYOU
+恋人
+ムカつく
+すごいぞ！JAPAN`,
+      angerme: `ぁまのじゃく
+私の心
+○○ がんばらなくてもええねんで!!
+スキちゃん
+オトナになるって難しい!!!
+夢見る 15歳
+○○ がんばらなくてもええねんで!!
+同じ時給で働く友達の美人ママ
+ショートカット
+恋にBooing ブー!
+有頂天LOVE
+タチアガール
+プリーズ ミニスカ ポストウーマン！
+チョトマテクダサイ！
+好きちゃん
+寒いね。
+旅立ちの春が来た
+新しい私になれ！
+ヤッタルチャン
+ええか!?
+「良い奴」
+ミステリーナイト！
+エイティーン エモーション
+嗚呼 すすきの
+地球は今日も愛を育む
+乙女の逆襲
+七転び八起き
+魔法使いサリー
+出すぎた杭は打たれない
+臥薪嘗胆
+マナーモード
+汗かいてカルナバル
+私、ちょいとカワイイ裏番長
+上手く言えない
+愛のため今日まで進化論
+忘れてあげる
+愛さえあればなんにもいらない
+ナミダイロノケツイ
+魔女っ子メグちゃん
+泣けないぜ・・・共感詐欺
+Uraha=Lover
+君だけじゃないさ...friends
+タデ食う虫もLike it!
+46億年LOVE
+恋はアッチャアッチャ
+夢見た 15年
+私を創るのは私
+全然起き上がれないSUNDAY
+限りあるMoment
+ミラー・ミラー
+はっきりしようぜ
+泳げないMermaid
+愛されルート A or B?
+SHAKA SHAKA #2 LOVE カラフルライフ編
+愛・魔性
+ハデにやっちゃいな！
+愛すべきべき Human Life
+悔しいわ
+Piece of Peace〜しあわせのパズル〜
+アイノケダモノ
+同窓生
+RED LINE
+ライフ イズ ビューティフル！
+美々たる一撃
+うわさのナルシー
+THANK YOU, HELLO GOOD BYE
+初恋、花冷え
+悠々閑々 gonna be alright!!
+うれしいのにね、泣けちゃうわ
+アンドロイドは夢を見るか？
+光のうた
+FAST PASS
+Celebrate! Celebrate!
+トラブルメーカー
+プリズンブレイカー
+右ななめ後ろから
+午後3時スクランブル`,
+      juice: `私が言う前に抱きしめなきゃね
+五月雨美女がさ乱れる
+イジワルしないで 抱きしめてよ
+初めてを経験中
+裸の裸の裸のKISS
+アレコレしたい！
+ブラックバタフライ
+風に吹かれて
+背伸び
+夢見る 15歳
+CHOICE & CHANCE
+Wonder chance!
+生まれたてのBaby Love
+選ばれし私達
+GIRLS BE AMBITIOUS
+Ca va ? Ca va ?
+香水
+裸の裸の裸のKISS
+伊達じゃないよ うちの人生は
+Dream Road〜心が躍り出してる〜
+KEEP ON 上昇志向！！
+Goal〜明日はあっちだよ〜
+Next is you!
+カラダだけが大人になったんじゃない
+地団駄ダンス
+Feel!感じるよ
+SEXY SEXY
+泣いていいよ
+Vivid Midnight
+微炭酸
+ポツリと
+Good bye & Good luck!
+25歳永遠説
+「ひとりで生きられそう」って それってねえ、褒めているの？
+Yeah! Yeah! Yeah!
+Borderline
+Va-Va-Voom
+Future Smile
+DOWN TOWN
+がんばれないよ
+Plastic Love
+Familia
+Future Smile
+STAGE〜アガってみな〜
+G.O.A.T.
+雨の中の口笛
+全部賭けてGO!!
+イニミニマニモ〜恋のライバル宣言〜
+プラトニック・プラネット
+ノクチルカ
+We Need a Name!
+FUNKY FLUSHIN'
+Never Never Surrender
+ナイモノラブ
+おあいこ
+トウキョウ・ブラー
+Brilliance of memories
+トウキョウ・ブラー
+ナイモノラブ
+おあいこ
+盛れ！ミ・アモーレ
+甘えんな
+結論から言ってちょうだい`,
+      tsubaki: `青春まんまんなか！
+気高く咲き誇れ！
+独り占め
+私がオバさんになっても
+17才の別れ
+ハナモヨウ
+Just Try!
+うるわしのカメリア
+笑って
+I Need You 〜夜空の観覧車〜
+デートの日は二度くらいシャワーして出かけたい
+純情cm(センチメートル)
+三回目のデート神話
+ふわり、恋時計
+意識高い乙女のジレンマ
+抱きしめられてみたい
+断捨ISM
+マサユメ
+愛は今、愛を求めてる
+最上級Story
+涙のヒロイン降板劇
+ガラクタDIAMOND
+約束・連絡・記念日
+足りないもの埋めてゆく旅
+だからなんなんだ！
+My Darling 〜Do you love me?〜
+弱さじゃないよ、恋は
+アイドル天職音頭
+間違いじゃない 泣いたりしない
+スキップ・スキップ・スキップ
+君と僕の絆 feat. KIKI
+勇気 It's my Life!
+でも…いいよ
+BEYOND THE BLUE
+Baby Spider
+青春エクサバイト
+鼓動OK?
+君と僕の絆
+妄想だけならフリーダム
+アタシリズム
+EZPZ!!
+サマー・チャレンジャー
+ふたりの夏祭り
+恋のUFOキャッチャー
+I Need You 〜夜空の観覧車〜
+春恋歌
+表面張力〜Surface Tension〜
+雨宿りのエピローグ
+アドレナリン・ダメ
+悲しみがとまらない`,
+      beyooooonds: `文化祭実行委員長の恋
+WORKER讃歌
+アツイ！
+GIRL ZONE
+高輪ゲートウェイ駅ができる頃には
+恋する銀河
+こんなハズジャナカッター！
+ビタミンME
+フレフレ・エブリデイ
+涙のカスタネット
+Now Now Ningen
+Hey!ビヨンダ
+虎視タンタ・ターン
+英雄〜笑って！ショパン先輩〜
+激辛LOVE
+Now Now Ningen
+こんなハズジャナカッター！
+虎視タンタ・ターン
+ハムカツ黙示録
+フレフレ・エブリデイ
+求めよ…運命の旅人算
+夢さえ描けない夜空には
+灰toダイヤモンド
+Go City Go
+フックの法則
+あゝ君に転生
+恋愛奉行
+Do-Did-Done
+ビヨーンズの未来は…
+あゝ君に転生
+眼鏡の男の子
+ニッポンノD・N・A！
+Go Waist`,
+      ocha: `ラーメン大好き小泉さんの唄
+お祭りデビューだぜ！
+恋のクラウチングスタート
+運命 CHACHACHACHA〜N
+ウチらの地元は地球じゃん！
+素肌は熱帯夜
+ちょっと情緒不安定？…夏
+オチャノマ マホロバ イコイノバ〜昭和も令和もワッチャワチャ〜
+シェケナーレ
+ヨリドリ ME DREAM
+宇宙規模でダイスキ宣言！
+ちょっと情緒不安定？…夏
+Good Luckの胸騒ぎ
+今日からはじめる青春
+ちはやぶる
+友達天体図
+ミステイク
+恋のクラウチングスタート
+Hello! 生まれた意味がきっとある
+学校では教えてくれないこと
+女の愛想は武器じゃない
+わかってるっつーの！
+黙ってついてこい！
+ビビッときちゃいなっ！
+イージーイージー
+タップダンス
+勇気の付け方
+恋のクラウチングスタート`,
+      rosy: `ダイスキだけど付き合えない
+未来ハジマリ
+CHOOSE YOUR LIFE
+8bit片想い
+へいらっしゃい！〜ニッポンで会いましょう〜
+ウブとズル
+夏のイナズマ
+ガオガオガオ
+マイ・マイ・マイ
+ありがと〜な
+未来ハジマリ
+ウブとズル`
+    };
+    function appendCatalogSongs() {
+      const known = new Set(SONGS.map(song => `${song.group}\u0000${song.title}`));
+      for (const [group, text] of Object.entries(CATALOG_TITLES)) {
+        let serial = 1;
+        for (const title of text.split('\n').map(title => title.trim()).filter(Boolean)) {
+          const key = `${group}\u0000${title}`;
+          if (!known.has(key)) { SONGS.push({ id:`${group}-catalog-${String(serial).padStart(3,'0')}`, group, title }); known.add(key); }
+          serial++;
+        }
+      }
+    }
+    appendCatalogSongs();
+
     // 03. 純粋なデータ操作（DOMや保存処理から独立）
     const GROUP_MAP = new Map(GROUPS.map(group => [group.id, group]));
     const SONG_MAP = new Map(SONGS.map(song => [song.id, song]));
