@@ -1204,3 +1204,4 @@ appendCatalogSongs();
 renderGenerator();
 renderLibrary();
 </script>
+<script>SONGS.forEach(function(song){ SONG_MAP.set(song.id, song); }); renderLibrary(); renderGenerator();</script>
