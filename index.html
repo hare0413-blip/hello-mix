@@ -1023,3 +1023,184 @@ HEY! 真昼の蜃気楼`;
   </script>
 </body>
 </html>
+
+<script>
+/* 追加カタログ: アルバム曲・カップリング。既出曲は自動統合。 */
+var helloMixExtra = {
+  mm: `彼と一緒にお店がしたい！
+恋愛ハンター
+私の時代！
+ワクテカ Take a chance
+普通の少女A
+大好きだから絶対に許さない
+A B C D E-cha E-chaしたい
+負ける気しない 今夜の勝負
+坊や
+Be Alive
+地球が泣いている
+笑顔に涙〜THANK YOU! DEAR MY FRIENDS〜
+What's Up? 愛はどうなのよ〜
+ゼロから始まる青春
+大好き100万点
+信念だけは貫き通せ！
+キラリと光る星
+笑えない話
+冷たい風と片思い
+ENDLESS SKY
+One and Only
+セクシーキャットの演説
+ムキダシで向き合って
+そうじゃない
+モーニングみそ汁
+若いんだし！
+五線譜のたすき
+ロマンスに目覚める妄想女子の歌
+CHO DAI
+花が咲く 太陽浴びて
+ナルシス カマってちゃん協奏曲第5番
+A gonna
+Hey! Unfair Baby
+恋してみたくて
+恋愛Destiny〜本音を論じたい〜
+このまま！
+グルグルJUMP
+I surrender 愛されど愛
+愛してナンが悪い！？
+恋は時に
+勇敢なダンス
+おっちょこちょいなファンタジアロ`,
+  berryz: `ファイティングポーズはダテじゃない！
+ピリリと行こう！
+ハピネス〜幸福歓迎！〜
+恋の呪縛
+なんちゅう恋をやってるぅ YOU KNOW?
+21時までのシンデレラ
+ギャグ100回分愛してください
+ジリリ キテル
+笑っちゃおうよ BOYFRIEND
+胸さわぎスカーレット
+VERY BEAUTY
+告白の噴水広場
+ジンギスカン
+行け 行け モンキーダンス
+MADAYADE
+抱きしめて 抱きしめて
+青春バスガイド
+流星ボーイ
+私の未来のだんな様
+本気ボンバー!!
+シャイニング パワー
+ヒロインになろうか！
+愛の弾丸
+ああ、夜が明ける
+Be 元気＜成せば成るっ！＞
+WANT!
+アジアン セレブレイション
+もっとずっと一緒に居たかった
+ROCKエロティック
+大人なのよ！
+1億3千万総ダイエット王国
+愛はいつも君の中に
+普通、アイドル10年やってらんないでしょ！？`,
+  cute: `即 抱きしめて
+大きな愛でもてなして
+わっきゃない(Z)
+JUMP
+都会っ子 純情
+LALALA 幸せの歌
+涙の色
+江戸の手毬唄II
+FOREVER LOVE
+Bye Bye Bye!
+暑中お見舞い申し上げます
+EVERYDAY 絶好調!!
+SHOCK!
+キャンパスライフ〜生まれて来てよかった〜
+会いたいロンリークリスマス
+桃色スパークリング
+世界一HAPPYな女の子
+君は自転車 私は電車で帰宅
+会いたい 会いたい 会いたいな
+この街
+Crazy 完全な大人
+アダムとイブのジレンマ
+悲しき雨降り
+都会の一人暮らし
+Love take it all
+The Power
+悲しきヘブン
+I miss you
+The Middle Management〜女性中間管理職〜
+我武者LIFE
+次の角を曲がれ
+ありがとう〜無限のエール〜
+嵐を起こすんだ Exciting Fight!
+夢幻クライマックス
+愛はまるで静電気
+Singing〜あの頃のように〜
+To Tomorrow
+ファイナルスコール
+The Curtain Rises`,
+  buono: `Kiss!Kiss!Kiss!
+ガチンコでいこう！
+co・no・mi・chi
+MY BOY
+Bravo☆Bravo
+Our Songs
+Cafe Buono!
+We are Buono!
+タビダチの歌
+JUICY HE@RT
+DEEP MIND
+夏ダカラ！
+ソラシド〜ねえねえ〜
+ROCKの神様
+君がいれば
+うらはら
+消失点-Vanishing Point-
+カタオモイ。`,
+  country: `わかっているのにごめんね
+ためらい サマータイム
+恋はマグネット
+ランラルン〜あなたに夢中〜
+どーだっていいの
+涙のリクエスト
+Good Boy Bad Girl
+ピーナッツバタージェリーラブ
+VIVA!!薔薇色の人生
+ギザギザハートの子守唄
+小生意気ガール
+書いては消しての “I Love You”
+リズムが呼んでいるぞ！
+妄想リハーサル
+浮気なハニーパイ
+弱気女子退部届`,
+  kobushi: `サンバ！こぶしジャネイロ
+桜ナイトフィーバー
+チョット愚直に！猪突猛進
+押忍！こぶし魂
+バッチ来い青春！
+オラはにんきもの
+急がば回れ
+未熟半熟トロトロ
+GO TO THE TOP!!
+辛夷の花
+TEKI
+エエじゃないか ニンジャないか
+Oh No 懊悩
+ハルウララ
+これからだ！
+明日の私は今日より綺麗
+ドカンとBREAK！
+きっと私は
+Come with me
+消せやしないキモチ
+開き直っちゃえ！
+亀になれ！
+素直に甘えて`
+};
+Object.entries(helloMixExtra).forEach(function(pair) { CATALOG_TITLES[pair[0]] += '\n' + pair[1]; });
+appendCatalogSongs();
+renderGenerator();
+renderLibrary();
+</script>
