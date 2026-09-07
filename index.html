@@ -1298,3 +1298,34 @@ appendCatalogSongs();
 SONGS.forEach(function(song){ SONG_MAP.set(song.id, song); });
 renderLibrary(); renderGenerator();
 </script>
+<script>
+/* 05. グループ均等ミックス：曲数ではなくグループを基準に抽選する。 */
+function balancedMix(groupIds, count, favorite) {
+  const buckets = new Map(groupIds.map(function(group) {
+    const songs = SONGS.filter(function(song) { return song.group === group; });
+    for (let i = songs.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [songs[i], songs[j]] = [songs[j], songs[i]]; }
+    return [group, songs];
+  }).filter(function(pair) { return pair[1].length; }));
+  const chosen = [], used = new Map([...buckets.keys()].map(function(group) { return [group, 0]; }));
+  const limit = Math.min(Math.max(0, Math.floor(count)), [...buckets.values()].reduce(function(total, songs) { return total + songs.length; }, 0));
+  while (chosen.length < limit) {
+    const available = [...buckets.keys()].filter(function(group) { return buckets.get(group).length; });
+    const score = function(group) { return used.get(group) / (group === favorite ? 3 : 1); };
+    const lowest = Math.min.apply(null, available.map(score));
+    const candidates = available.filter(function(group) { return score(group) === lowest; });
+    const group = candidates[Math.floor(Math.random() * candidates.length)];
+    chosen.push(buckets.get(group).pop().id);
+    used.set(group, used.get(group) + 1);
+  }
+  for (let i = chosen.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [chosen[i], chosen[j]] = [chosen[j], chosen[i]]; }
+  return chosen;
+}
+$('generatorForm').addEventListener('submit', function(event) {
+  event.preventDefault(); event.stopImmediatePropagation();
+  const count = Number($('songCount').value);
+  if (!Number.isInteger(count) || count < 1 || count > 200 || !state.generatorGroups.size) { notify('グループと1〜200の整数曲数を指定してください'); return; }
+  if (state.songIds.length && !window.confirm('現在のプレイリストをランダム選曲で置き換えますか？')) return;
+  const ids = balancedMix([...state.generatorGroups], count, $('favGroup').value);
+  commit(ids, ids.length + '曲のバランスミックスを生成しました' + (ids.length < count ? '（対象曲数に合わせました）' : ''));
+}, true);
+</script>
